@@ -1,0 +1,7 @@
+{
+	"serverPort": 3000,
+	"dbUrl": "mongodb://docker:mongopw@localhost:55002",
+	"secretKey": "9i_l2_secret_key",
+	"filePath": "/Users/shestmintsev_kirill/code/cloudStorage/server/files",
+	"staticPath": "/Users/shestmintsev_kirill/code/cloudStorage/server/static"
+}
