@@ -115,6 +115,13 @@ class FileController {
 				return res.status(400).json({ message: 'File not found' })
 			}
 			fileService.deleteFile(req, file)
+			const parent = await File.findOne({ _id: file.parent, user: req.user.id })
+			if (parent?.children?.length) {
+				parent.children = parent.children.filter(
+					child => child._id.toString() !== req.query.id
+				)
+				await parent.save()
+			}
 			await file.remove()
 			return res.json({ message: 'File was deleted' })
 		} catch (error) {
