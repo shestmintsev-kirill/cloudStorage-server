@@ -4,6 +4,7 @@ const File = require('../models/File')
 const fs = require('fs')
 const config = require('config')
 const { v4: uuidv4 } = require('uuid')
+const path = require('path')
 
 class FileController {
 	async createDir(req, res) {
@@ -147,7 +148,7 @@ class FileController {
 			const file = req.files.file
 			const user = await User.findById(req.user.id)
 			const avatarName = uuidv4() + '.jpg'
-			file.mv(config.get('staticPath') + '/' + avatarName)
+			file.mv(path.resolve('static') + '/' + avatarName)
 			user.avatar = avatarName
 			await user.save()
 			return res.json(user)
@@ -160,7 +161,7 @@ class FileController {
 	async deleteAvatar(req, res) {
 		try {
 			const user = await User.findById(req.user.id)
-			fs.unlinkSync(config.get('staticPath') + '/' + user.avatar)
+			fs.unlinkSync(path.resolve('static') + '/' + user.avatar)
 			user.avatar = null
 			await user.save()
 			return res.json(user)

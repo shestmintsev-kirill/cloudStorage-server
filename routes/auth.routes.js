@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken')
 const authMiddleware = require('../middleware/auth.middleware')
 const fileService = require('../services/fileService')
 const File = require('../models/File')
+const fs = require('fs')
 
 const router = new Router()
 
@@ -29,6 +30,7 @@ router.post('/registration', authValidation, async (req, res) => {
 		const user = new User({ email, password: hashPassword })
 		await user.save()
 		await fileService.createDir(req, new File({ user: user.id, name: '' }))
+		fs.writeFileSync(`files/${user.id}/index.json`, JSON.stringify({}))
 		res.json({ message: 'User was created' })
 	} catch (error) {
 		console.log(error)
@@ -53,7 +55,8 @@ router.post('/login', async (req, res) => {
 			email: user.email,
 			diskSpace: user.diskSpace,
 			usedSpace: user.usedSpace,
-			avatar: user.avatar
+			avatar: user.avatar,
+			id: user.id
 		})
 	} catch (error) {
 		console.log(error)
@@ -70,7 +73,8 @@ router.get('/auth', authMiddleware, async (req, res) => {
 			email: user.email,
 			diskSpace: user.diskSpace,
 			usedSpace: user.usedSpace,
-			avatar: user.avatar
+			avatar: user.avatar,
+			id: user.id
 		})
 	} catch (error) {
 		console.log(error)
