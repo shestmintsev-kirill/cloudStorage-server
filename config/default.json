@@ -1,5 +1,5 @@
 {
 	"serverPort": 3000,
-	"dbUrl": "mongodb://docker:mongopw@localhost:55004",
+	"dbUrl": "mongodb://localhost:27017",
 	"secretKey": "9i_l2_secret_key"
 }

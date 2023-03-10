@@ -2,7 +2,6 @@ const fileService = require('../services/fileService')
 const User = require('../models/User')
 const File = require('../models/File')
 const fs = require('fs')
-const config = require('config')
 const { v4: uuidv4 } = require('uuid')
 const path = require('path')
 
@@ -61,13 +60,15 @@ class FileController {
 			const fileName = req.body.fileName
 			const parent = await File.findOne({ user: req.user.id, _id: req.body.parent })
 			const user = await User.findOne({ _id: req.user.id })
-			if (user.usedSpace + file.size > user.diskSpace) {
+			const { _id: userId, usedSpace, diskSpace } = user
+
+			if (usedSpace + file.size > diskSpace) {
 				return res.status(400).json({ message: 'No space on disk' })
 			}
 
-			user.usedSpace = user.usedSpace + file.size
+			user.usedSpace = usedSpace + file.size
 
-			const path = `${req.filePath}/${user._id}${parent ? '/' + parent.path : ''}/${fileName}`
+			const path = `${req.filePath}/${userId}${parent ? '/' + parent.path : ''}/${fileName}`
 
 			if (fs.existsSync(path)) {
 				return res.status(400).json({ message: 'File already exists' })
@@ -84,7 +85,7 @@ class FileController {
 				size: file.size,
 				path: filePath,
 				parent: parent ? parent._id : null,
-				user: user._id
+				user: userId
 			})
 			await dbFile.save()
 			await user.save()
@@ -148,7 +149,12 @@ class FileController {
 			const file = req.files.file
 			const user = await User.findById(req.user.id)
 			const avatarName = uuidv4() + '.jpg'
-			file.mv(path.resolve('static') + '/' + avatarName)
+
+			if (!fs.existsSync(path.resolve('src/static'))) {
+				fs.mkdirSync('src/static')
+			}
+
+			file.mv(path.resolve('src/static') + '/' + avatarName)
 			user.avatar = avatarName
 			await user.save()
 			return res.json(user)
@@ -161,7 +167,7 @@ class FileController {
 	async deleteAvatar(req, res) {
 		try {
 			const user = await User.findById(req.user.id)
-			fs.unlinkSync(path.resolve('static') + '/' + user.avatar)
+			fs.unlinkSync(path.resolve('src/static') + '/' + user.avatar)
 			user.avatar = null
 			await user.save()
 			return res.json(user)

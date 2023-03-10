@@ -24,9 +24,7 @@ class FileService {
 		else fs.unlinkSync(path)
 	}
 
-	getPath(req, file) {
-		return req.filePath + '/' + file.user + '/' + file.path
-	}
+	getPath = (req, file) => `${req.filePath}/${file.user}/${file.path}`
 }
 
 module.exports = new FileService()
